@@ -24,7 +24,7 @@ const StyledNavLink = styled(NavLink)`
     gap: 1.2rem;
 
     color: var(--color-grey-600);
-    font-size: 2.6rem;
+    font-size: 2rem;
     font-weight: 500;
     padding: 1.2rem 2.4rem;
     transition: all 0.3s;
@@ -41,8 +41,8 @@ const StyledNavLink = styled(NavLink)`
   }
 
   & svg {
-    width: 3.6rem;
-    height: 3.6rem;
+    width: 2.6rem;
+    height: 2.6rem;
     color: var(--color-grey-400);
     transition: all 0.3s;
   }
