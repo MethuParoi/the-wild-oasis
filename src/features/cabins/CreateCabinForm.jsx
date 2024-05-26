@@ -4,56 +4,46 @@ import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import { createCabin } from "../../services/apiCabins";
 import FormRow from "../../ui/FormRow";
+import { useCreateCabin } from "./useCreateCabin";
+import { useEditCabin } from "./useEditCabin";
 
 function CreateCabinForm({ cabinToEdit = {} }) {
+  //useCreateCabin and useEditCabin, importing custom hooks
+  const { isCreating, createCabinForm } = useCreateCabin();
+  const { editCabinForm, isEditingData } = useEditCabin();
+  const isWorking = isCreating || isEditingData;
+
   const { id: editId, ...editValue } = cabinToEdit;
   const isEditing = Boolean(editId);
-  console.log(isEditing);
 
   const { register, handleSubmit, reset, getValues, formState } = useForm({
     defaultValues: isEditing ? editValue : {},
   });
   const { errors } = formState;
 
-  const queryClient = useQueryClient();
-
-  const { mutate: createCabinForm, isLoading: isCreating } = useMutation({
-    mutationFn: createCabin,
-    onSuccess: () => {
-      queryClient.invalidateQueries("cabins");
-      toast.success("Cabin created successfully");
-      reset();
-    },
-    onError: () => {
-      toast.error("Failed to create cabin");
-    },
-  });
-
-  const { mutate: editCabinForm, isLoading: isEditingData } = useMutation({
-    mutationFn: ({ newCabinData, id }) => createCabin(newCabinData, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries("cabins");
-      toast.success("Cabin updated successfully");
-      reset();
-    },
-    onError: () => {
-      toast.error("Failed to create cabin");
-    },
-  });
-
-  const isWorking = isCreating || isEditingData;
-
   //Onclick handler for the submit button
   function onSubmit(data) {
     const image = typeof data.image === "string" ? data.image : data.image[0];
 
     if (isEditing)
-      editCabinForm({ newCabinData: { ...data, image }, id: editId });
-    else createCabinForm({ ...data, image: image });
+      editCabinForm(
+        { newCabinData: { ...data, image }, id: editId },
+        {
+          onSuccess: (data) => {
+            reset();
+          },
+        }
+      );
+    else
+      createCabinForm(
+        { ...data, image: image },
+        {
+          onSuccess: (data) => {
+            reset();
+          },
+        }
+      );
   }
 
   function onError(errors) {
@@ -102,9 +92,19 @@ function CreateCabinForm({ cabinToEdit = {} }) {
           defaultValue={0}
           {...register("discount", {
             required: "Discounted amount is required",
-            validate: (value) =>
-              Number(value) <= Number(getValues().regularPrice) ||
-              "Discounted amount should be less than regular price",
+            validate: (value) => {
+              if (Number(value) > Number(getValues().regularPrice)) {
+                return "Discounted amount should be less than regular price";
+              }
+              if (Number(value) < 0) {
+                return "Discounted amount should be greater than 0";
+              }
+              return true;
+            },
+            // validate: (value) =>
+            //   Number(value) <= Number(getValues().regularPrice) ||
+            //   "Discounted amount should be less than regular price",
+            //   Number(value) >= 0 || "Discounted amount should be greater than 0",
           })}
         />
       </FormRow>
