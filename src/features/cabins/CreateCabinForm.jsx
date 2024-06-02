@@ -8,7 +8,7 @@ import FormRow from "../../ui/FormRow";
 import { useCreateCabin } from "./useCreateCabin";
 import { useEditCabin } from "./useEditCabin";
 
-function CreateCabinForm({ cabinToEdit = {} }) {
+function CreateCabinForm({ cabinToEdit = {}, onClose }) {
   //useCreateCabin and useEditCabin, importing custom hooks
   const { isCreating, createCabinForm } = useCreateCabin();
   const { editCabinForm, isEditingData } = useEditCabin();
@@ -31,6 +31,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
         { newCabinData: { ...data, image }, id: editId },
         {
           onSuccess: (data) => {
+            onClose();
             reset();
           },
         }
@@ -40,6 +41,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
         { ...data, image: image },
         {
           onSuccess: (data) => {
+            onClose();
             reset();
           },
         }
@@ -134,7 +136,7 @@ function CreateCabinForm({ cabinToEdit = {} }) {
 
       <FormRow>
         {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
+        <Button onClick={onClose} variation="secondary" type="reset">
           Cancel
         </Button>
         <Button disabled={isWorking}>
