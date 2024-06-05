@@ -19,11 +19,19 @@ const TableHeader = styled.header`
   padding: 1.6rem 2.4rem;
 `;
 
+const TableSpinner = styled.div`
+  margin: 4rem auto;
+`;
+
 function CabinTable() {
   const { isLoading, cabins, error } = useCabins();
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <TableSpinner>
+        <Spinner />
+      </TableSpinner>
+    );
   }
 
   return (
@@ -36,9 +44,11 @@ function CabinTable() {
         <div>Discount</div>
         <div></div>
       </Table.Header>
-      {cabins.map((cabin) => (
-        <CabinRow cabin={cabin} key={cabin.id} />
-      ))}
+
+      <Table.Body
+        data={cabins}
+        render={(cabin) => <CabinRow cabin={cabin} key={cabin.id} />}
+      />
     </Table>
   );
 }
